@@ -1,0 +1,103 @@
+#include <iostream>
+#include <vector>
+#include <numeric>
+
+using namespace std;
+
+void intro(double& choice,double& V);
+void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor);
+void ParallelCircuit(double& It,double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries);
+void DisplayTotal(double& Rt);
+
+int main() {
+	double V, It, choice, ResistorSeries, ResistorParallel, amountRP, series, amountP, amountPGroups;
+	double repeat = 1;
+	double Rt = 0;
+	vector<double> parallels = {};
+	vector<double> resistor = {};
+
+	intro(choice, V);
+
+	if (choice == 1) {
+		SeriesCircuit(V, It, ResistorSeries, repeat, Rt, resistor);
+	} else {
+		ParallelCircuit(It, V, amountPGroups, amountRP, ResistorParallel, Rt, amountP, parallels, series, ResistorSeries);
+	}
+
+	DisplayTotal(Rt);
+	return 0;
+}
+
+void intro(double& choice, double& V) {
+	cout << "This program calculates series and parallel circuits\n" << endl;
+	cout << "Enter 1 for series, any other # for parallel: ";
+	cin >> choice;
+	cout << "what is the voltage\n";
+	cin >> V;
+}
+
+void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor) {
+	cout << "you chose series circuit\n";
+	do {
+		cout << "please enter value of resistor\n";
+		cin >> ResistorSeries;
+		resistor.push_back(ResistorSeries);
+		cout << "is there another resistor, press 1 for yes and any other # for no\n";
+		cin >> repeat;
+	} while (repeat == 1);
+
+	Rt = accumulate(resistor.begin(), resistor.end(), 0.0);
+	It = V / Rt;
+
+	for (int Rnum : resistor) {
+		int R =  Rnum*It;
+		cout << "resistor: " << Rnum << " | voltage drop: " << R << endl;
+	}
+}
+
+void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries) {
+	cout << "You chose parallel circuit\n";
+	cout << "How many parallel groups? ";
+	cin >> amountPGroups;
+
+	do {
+		parallels.clear();
+		cout << "How many resistors in this group? ";
+		cin >> amountRP;
+		do {
+			cout << "Value of next resistor: ";
+			cin >> ResistorParallel;
+			parallels.push_back(ResistorParallel);
+			amountRP--;
+		} while (amountRP > 0);
+
+		double Psum = accumulate(parallels.begin(), parallels.end(), 0.0, [](double acc, double val) {
+			return acc + (1.0 / val);
+		});
+		Rt = Rt + (1.0 / Psum);
+		amountPGroups--;
+	} while (amountPGroups > 0);
+
+	cout << "Any resistors in series? (1 for yes): ";
+	cin >> series;
+	if (series == 1) {
+		cout << "How many? ";
+		cin >> amountP;
+		do {
+			cout << "Value of next resistor: ";
+			cin >> ResistorSeries;
+			Rt = Rt + ResistorSeries;
+			amountP--;
+		} while (amountP > 0);
+	}
+	It = V / Rt;
+	for (int PRnum : parallels) {
+		int P =  It*(Rt/PRnum);
+		cout << "resistor: " << PRnum << " | current through resistor is: " << P << endl;
+	}
+
+}
+
+void DisplayTotal(double& Rt) {
+	cout << "Total Resistance (Rt) is: " << Rt << endl;
+}
