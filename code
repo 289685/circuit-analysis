@@ -4,6 +4,7 @@
 
 using namespace std;
 
+void fail(const string& prompt, double& value);
 void intro(double& choice,double& V);
 void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor);
 void ParallelCircuit(double& It,double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries);
@@ -27,23 +28,31 @@ int main() {
 	DisplayTotal(Rt);
 	return 0;
 }
-
+void fail(const string& prompt, double& value) {
+	while (true) {
+		cout << prompt;
+		cin >> value;
+		if (cin.fail()) {
+			cin.clear();
+			cin.ignore(1000, '\n');
+			cout << "Invalid input. Try again.\n";
+		} else {
+			break;
+		}
+	}
+}
 void intro(double& choice, double& V) {
 	cout << "This program calculates series and parallel circuits\n" << endl;
-	cout << "Enter 1 for series, any other # for parallel: ";
-	cin >> choice;
-	cout << "what is the voltage\n";
-	cin >> V;
+	fail("Enter 1 for series, any other # for parallel: ", choice);
+	fail("what is the voltage\n", V);
 }
 
 void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor) {
 	cout << "you chose series circuit\n";
 	do {
-		cout << "please enter value of resistor\n";
-		cin >> ResistorSeries;
+		fail("please enter value of resistor\n", ResistorSeries);
 		resistor.push_back(ResistorSeries);
-		cout << "is there another resistor, press 1 for yes and any other # for no\n";
-		cin >> repeat;
+		fail("is there another resistor, press 1 for yes and any other # for no\n", repeat);
 	} while (repeat == 1);
 
 	Rt = accumulate(resistor.begin(), resistor.end(), 0.0);
@@ -57,16 +66,13 @@ void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat,
 
 void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries) {
 	cout << "You chose parallel circuit\n";
-	cout << "How many parallel groups? ";
-	cin >> amountPGroups;
+	fail("How many parallel groups? ", amountPGroups);
 
 	do {
 		parallels.clear();
-		cout << "How many resistors in this group? ";
-		cin >> amountRP;
+		fail("How many resistors in this group? ", amountRP);
 		do {
-			cout << "Value of next resistor: ";
-			cin >> ResistorParallel;
+			fail("Value of next resistor: ", ResistorParallel);
 			parallels.push_back(ResistorParallel);
 			amountRP--;
 		} while (amountRP > 0);
@@ -78,14 +84,11 @@ void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amoun
 		amountPGroups--;
 	} while (amountPGroups > 0);
 
-	cout << "Any resistors in series? (1 for yes): ";
-	cin >> series;
+	fail("Any resistors in series? (1 for yes): ", series);
 	if (series == 1) {
-		cout << "How many? ";
-		cin >> amountP;
+		fail("How many? ", amountP);
 		do {
-			cout << "Value of next resistor: ";
-			cin >> ResistorSeries;
+			fail("Value of next resistor: ", ResistorSeries);
 			Rt = Rt + ResistorSeries;
 			amountP--;
 		} while (amountP > 0);
