@@ -66,11 +66,11 @@ void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat,
 
 void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries) {
 	cout << "You chose parallel circuit\n";
-	fail("How many parallel groups? ", amountPGroups);
+	fail("How many parallel groups are there? ", amountPGroups);
 
 	do {
 		parallels.clear();
-		fail("How many resistors in this group? ", amountRP);
+		fail("How many resistors in the parallel? ", amountRP);
 		do {
 			fail("Value of next resistor: ", ResistorParallel);
 			parallels.push_back(ResistorParallel);
