@@ -10,19 +10,19 @@ void SeriesCircuit(double V, double& Rt);
 void ParallelCircuit(double V, double& Rt);
 void calc(double& Rt, double& V);
 
-int main() {
+int main() { 
 	double V, choice, Rt = 0, It;
 
-	intro(V, choice, Rt);
-	if (choice == 1) SeriesCircuit(V, Rt);
-	else ParallelCircuit(V, Rt);
-	calc(Rt, V);
+	intro(V, choice, Rt); //calls intro
+	if (choice == 1) SeriesCircuit(V, Rt); //if choice =1 itll do Series Circuit
+	else ParallelCircuit(V, Rt); //if choice =anything else does Parallel Circuit 
+	calc(Rt, V); //calls calculation function
 	
 
 	return 0;
 }
 
-void fail(const string& prompt, double& value) {
+void fail(const string& prompt, double& value) { //if Invalid input makes you retry
 	while (true) {
 		cout << prompt;
 		cin >> value;
@@ -35,8 +35,8 @@ void fail(const string& prompt, double& value) {
 }
 void intro(double& V, double& choice, double& Rt) {
 	cout << "Circuit Analyzer\n";
-	fail("Enter Voltage: ", V);
-	fail("Enter 1 for Series, 2 for Parallel: ", choice);
+	fail("Enter Voltage: ", V); //asks for voltage
+	fail("Enter 1 for Series, 2 for Parallel: ", choice);//asks for which series
 }
 void SeriesCircuit(double V, double& Rt) {
 	vector<double> resistors;
