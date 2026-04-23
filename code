@@ -8,7 +8,7 @@ void fail(const string& prompt, double& value);
 void intro(double& choice,double& V);
 void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor);
 void ParallelCircuit(double& It,double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries);
-void DisplayTotal(double& Rt);
+void DisplayTotal(double& Rt, double& It);
 
 int main() {
 	double V, It, choice, ResistorSeries, ResistorParallel, amountRP, series, amountP, amountPGroups;
@@ -25,7 +25,7 @@ int main() {
 		ParallelCircuit(It, V, amountPGroups, amountRP, ResistorParallel, Rt, amountP, parallels, series, ResistorSeries);
 	}
 
-	DisplayTotal(Rt);
+	DisplayTotal(Rt, It);
 	return 0;
 }
 void fail(const string& prompt, double& value) {
@@ -95,12 +95,14 @@ void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amoun
 	}
 	It = V / Rt;
 	for (int PRnum : parallels) {
-		int P =  It*(Rt/PRnum);
+		double P =  It*(Rt/PRnum);
 		cout << "resistor: " << PRnum << " | current through resistor is: " << P << endl;
 	}
 
 }
 
-void DisplayTotal(double& Rt) {
+void DisplayTotal(double& Rt, double& It) {
 	cout << "Total Resistance (Rt) is: " << Rt << endl;
+	cout << "Total Current (It) is: " << It << endl;
+
 }
