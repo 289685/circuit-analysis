@@ -8,6 +8,22 @@ void fail(const string& prompt, double& value);
 void SeriesCircuit(double V, double& Rt);
 void ParallelCircuit(double V, double& Rt);
 
+int main() {
+    double V, choice, Rt = 0;
+    cout << "Circuit Analyzer\n";
+    fail("Enter Voltage: ", V);
+    fail("Enter 1 for Series, 2 for Parallel: ", choice);
+
+    if (choice == 1) SeriesCircuit(V, Rt);
+    else ParallelCircuit(V, Rt);
+
+    double It = (Rt != 0) ? V / Rt : 0;
+    cout << "\nTotal Resistance (Rt): " << Rt << " ohms" << endl;
+    cout << "Total Current (It): " << It << " A" << endl;
+
+    return 0;
+}
+
 void fail(const string& prompt, double& value) {
     while (true) {
         cout << prompt;
@@ -88,18 +104,4 @@ void ParallelCircuit(double V, double& Rt) {
     }
 }
 
-int main() {
-    double V, choice, Rt = 0;
-    cout << "Circuit Analyzer\n";
-    fail("Enter Voltage: ", V);
-    fail("Enter 1 for Series, 2 for Parallel: ", choice);
 
-    if (choice == 1) SeriesCircuit(V, Rt);
-    else ParallelCircuit(V, Rt);
-
-    double It = (Rt != 0) ? V / Rt : 0;
-    cout << "\nTotal Resistance (Rt): " << Rt << " ohms" << endl;
-    cout << "Total Current (It): " << It << " A" << endl;
-
-    return 0;
-}
