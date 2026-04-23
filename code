@@ -3,111 +3,104 @@
 #include <numeric>
 
 using namespace std;
-//list of functions
-void intro(double& V, double& choice, double& Rt);
+
 void fail(const string& prompt, double& value);
-void SeriesCircuit(double V, double& Rt);
-void ParallelCircuit(double V, double& Rt);
-void calc(double& Rt, double& V);
+void intro(double& choice,double& V);
+void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor);
+void ParallelCircuit(double& It,double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries);
+void DisplayTotal(double& Rt);
 
-int main() { 
-	double V, choice, Rt = 0, It;
+int main() {
+	double V, It, choice, ResistorSeries, ResistorParallel, amountRP, series, amountP, amountPGroups;
+	double repeat = 1;
+	double Rt = 0;
+	vector<double> parallels = {};
+	vector<double> resistor = {};
 
-	intro(V, choice, Rt); //calls intro
-	if (choice == 1) SeriesCircuit(V, Rt); //if choice =1 itll do Series Circuit
-	else ParallelCircuit(V, Rt); //if choice =anything else does Parallel Circuit 
-	calc(Rt, V); //calls calculation function
-	
+	intro(choice, V);
 
+	if (choice == 1) {
+		SeriesCircuit(V, It, ResistorSeries, repeat, Rt, resistor);
+	} else {
+		ParallelCircuit(It, V, amountPGroups, amountRP, ResistorParallel, Rt, amountP, parallels, series, ResistorSeries);
+	}
+
+	DisplayTotal(Rt);
 	return 0;
 }
-
-void fail(const string& prompt, double& value) { //if Invalid input makes you retry
+void fail(const string& prompt, double& value) {
 	while (true) {
 		cout << prompt;
 		cin >> value;
-		if (cin.fail() || value < 0) {
+		if (cin.fail()) {
 			cin.clear();
 			cin.ignore(1000, '\n');
-			cout << "Invalid input. Please enter a positive number.\n";
-		} else break;
+			cout << "Invalid input. Try again.\n";
+		} else {
+			break;
+		}
 	}
 }
-void intro(double& V, double& choice, double& Rt) {
-	cout << "Circuit Analyzer\n";
-	fail("Enter Voltage: ", V); //asks for voltage
-	fail("Enter 1 for Series, 2 for Parallel: ", choice);//asks for which series
+void intro(double& choice, double& V) {
+	cout << "This program calculates series and parallel circuits\n" << endl;
+	fail("Enter 1 for series, any other # for parallel: ", choice);
+	fail("what is the voltage\n", V);
 }
-void SeriesCircuit(double V, double& Rt) {
-	vector<double> resistors;
-	double val, repeat;
+
+void SeriesCircuit(double& V, double& It,double& ResistorSeries, double& repeat, double& Rt, vector<double>& resistor) {
+	cout << "you chose series circuit\n";
 	do {
-		fail("Enter resistor value (ohms): ", val);
-		resistors.push_back(val);
-		fail("Add another? (1=yes, 0=no): ", repeat);
+		fail("please enter value of resistor\n", ResistorSeries);
+		resistor.push_back(ResistorSeries);
+		fail("is there another resistor, press 1 for yes and any other # for no\n", repeat);
 	} while (repeat == 1);
 
-	Rt = accumulate(resistors.begin(), resistors.end(), 0.0);
-	double It = (Rt != 0) ? V / Rt : 0;
+	Rt = accumulate(resistor.begin(), resistor.end(), 0.0);
+	It = V / Rt;
 
-	cout << "\n--- Series Results ---" << endl;
-	for (double r : resistors) {
-		cout << "Resistor: " << r << " ohms | Current: " << It << " A | Voltage Drop: " << It * r << " V" << endl;
+	for (int Rnum : resistor) {
+		int R =  Rnum*It;
+		cout << "resistor: " << Rnum << " | voltage drop: " << R << endl;
 	}
 }
 
-void ParallelCircuit(double V, double& Rt) {
-	struct Group {
-		vector<double> res;
-		double groupR;
-	};
-	vector<Group> groups;
-	double numGroups, numInGroup, rVal, seriesChoice;
-	Rt = 0;
+void ParallelCircuit(double& It, double& V, double& amountPGroups, double& amountRP, double& ResistorParallel, double& Rt, double& amountP, vector<double>& parallels, double& series, double& ResistorSeries) {
+	cout << "You chose parallel circuit\n";
+	fail("How many parallel groups? ", amountPGroups);
 
-	fail("How many parallel groups? ", numGroups);
-	for (int i = 0; i < (int)numGroups; i++) {
-		fail("How many resistors in this parallel group? ", numInGroup);
-		Group g;
-		double conductance = 0;
-		for (int j = 0; j < (int)numInGroup; j++) {
-			fail(" Resistor value: ", rVal);
-			g.res.push_back(rVal);
-			conductance += (1.0 / rVal);
-		}
-		g.groupR = 1.0 / conductance;
-		Rt += g.groupR;
-		groups.push_back(g);
+	do {
+		parallels.clear();
+		fail("How many resistors in this group? ", amountRP);
+		do {
+			fail("Value of next resistor: ", ResistorParallel);
+			parallels.push_back(ResistorParallel);
+			amountRP--;
+		} while (amountRP > 0);
+
+		double Psum = accumulate(parallels.begin(), parallels.end(), 0.0, [](double acc, double val) {
+			return acc + (1.0 / val);
+		});
+		Rt = Rt + (1.0 / Psum);
+		amountPGroups--;
+	} while (amountPGroups > 0);
+
+	fail("Any resistors in series? (1 for yes): ", series);
+	if (series == 1) {
+		fail("How many? ", amountP);
+		do {
+			fail("Value of next resistor: ", ResistorSeries);
+			Rt = Rt + ResistorSeries;
+			amountP--;
+		} while (amountP > 0);
+	}
+	It = V / Rt;
+	for (int PRnum : parallels) {
+		int P =  It*(Rt/PRnum);
+		cout << "resistor: " << PRnum << " | current through resistor is: " << P << endl;
 	}
 
-	vector<double> seriesResistors;
-	fail("Add series resistors? (1=yes, 0=no): ", seriesChoice);
-	if (seriesChoice == 1) {
-		fail("How many? ", numInGroup);
-		for (int i = 0; i < (int)numInGroup; i++) {
-			fail(" Value: ", rVal);
-			seriesResistors.push_back(rVal);
-			Rt += rVal;
-		}
-	}
-
-	double It = (Rt != 0) ? V / Rt : 0;
-
-	cout << "\n--- Parallel resistors ---" << endl;
-	for (auto& g : groups) {
-		double voltageDrop = It * g.groupR;
-		for (double r : g.res) {
-			cout << "Parallel Resistor: " << r << " ohms | Current: " << (r != 0 ? voltageDrop / r : 0) << " A | Voltage Drop: " << voltageDrop << " V" << endl;
-		}
-	}
-
-	for (double r : seriesResistors) {
-		cout << "Series Resistor: " << r << " ohms | Current: " << It << " A | Voltage Drop: " << It * r << " V" << endl;
-	}
-}
-void calc(double& Rt, double& V) {
-	double It = (Rt != 0) ? V / Rt : 0;
-	cout << "\nTotal Resistance (Rt): " << Rt << " ohms" << endl;
-	cout << "Total Current (It): " << It << " A" << endl;
 }
 
+void DisplayTotal(double& Rt) {
+	cout << "Total Resistance (Rt) is: " << Rt << endl;
+}
